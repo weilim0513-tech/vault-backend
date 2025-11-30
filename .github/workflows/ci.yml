@@ -23,58 +23,61 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: '21'
-          distribution: 'graalvm' # 로컬 환경과 통일
-          cache: 'gradle'         # Gradle 캐싱
+          distribution: 'graalvm'
+          cache: 'gradle'
 
-      # 3. application-prod.yml 껍데기 생성
+      # 3. Gradle 설정
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      # 4. application-prod.yml 껍데기 생성
       - name: Create dummy application-prod.yml
         run: |
           mkdir -p src/main/resources
           echo "spring.config.activate.on-profile: prod" > src/main/resources/application-prod.yml
 
-      # 4. Gradle 권한 부여
+      # 5. Gradle 권한 부여
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 5. 빌드 실행 (테스트 제외)
+      # 6. 빌드 실행
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 6. 빌드 결과물(Jar) 저장 (Deploy Job으로 넘겨주기 위함)
+      # 7. 빌드 결과물(Jar) 저장 (Deploy Job으로 넘겨주기 위함)
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5.0.0
         with:
           name: vault-jar
           path: build/libs/*.jar
-          retention-days: 1 # 하루 뒤 자동 삭제 (용량 절약)
-
+          retention-days: 1
 
   # JOB 2: 도커 이미지 빌드 및 배포 (CD)
   deploy:
-    needs: build # build Job이 성공해야 실행됨
-    if: github.event_name == 'push' # Pull Request일 때는 배포 안 함 (Push일 때만)
+    needs: build
+    if: github.event_name == 'push' # Push일 때만 배포
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 소스코드 내려받기
       - name: Checkout Source Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      # 1. 위에서 빌드한 Jar 파일 다운로드
+      # 2. 위에서 빌드한 Jar 파일 다운로드
       - name: Download Build Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: vault-jar
           path: build/libs/
 
-      # 2. 도커 허브 로그인
+      # 3. 도커 허브 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 3. 도커 이미지 빌드 & 푸시
-      # 이미지 태그: 아이디/레포지토리명:latest
+      # 4. 도커 이미지 빌드 & 푸시
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -82,7 +85,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/vault-server:latest
 
-      # 4. AWS EC2 접속 및 배포 실행
+      # 5. AWS EC2 접속 및 배포 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -92,30 +95,27 @@ jobs:
           script: |
             echo "🚀 배포 시작..."
             
-            # 1) 실행 중인 컨테이너 확인 및 중지/삭제
+            # 1) 실행 중인 컨테이너 정리
             if [ $(docker ps -q -f name=vault-server) ]; then
               docker stop vault-server
             fi
-            
             if [ $(docker ps -aq -f name=vault-server) ]; then
               docker rm vault-server
             fi
             
-            # 2) 기존 이미지 삭제 (용량 확보)
+            # 2) 기존 이미지 삭제 및 최신 이미지 Pull
             docker rmi ${{ secrets.DOCKER_USERNAME }}/vault-server:latest || true
-            
-            # 3) 최신 이미지 다운로드
             docker pull ${{ secrets.DOCKER_USERNAME }}/vault-server:latest
             
-            # 4) 컨테이너 실행 (환경변수 주입)
-            # 아직 DB가 없으므로 더미값 주입 (일단 서버가 뜨는지 확인용)
+            # 3) 컨테이너 실행 (환경변수 주입)
+            # 아직 DB가 없으므로 더미값 주입 (서버 실행 확인용)
             docker run -d \
               --name vault-server \
               -p 8080:8080 \
               -e TZ=Asia/Seoul \
               -e DB_USERNAME=root \
               -e DB_PASSWORD=root \
-              -e JWT_SECRET=temp_secret_key_for_test \
+              -e JWT_SECRET=temp_secret_key \
               ${{ secrets.DOCKER_USERNAME }}/vault-server:latest
             
-            echo "✅ 배포 완료! (DB 연결 실패로 곧 죽을 수 있음 - 정상임)"
+            echo "✅ 배포 완료! (워킹 스켈레톤 가동)"
