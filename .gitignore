@@ -1,0 +1,70 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### OS Specific ###
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+### Logs (서버 실행 로그 무시) ###
+*.log
+logs/
+log/
+
+### Crash Logs (JVM 죽었을 때 생기는 로그) ###
+hs_err_pid*
+
+### Secrets & Security ###
+application-prod.yml
+application-real.yml
+application-secret.yml
+secrets.yml
+aws.yml
+.env
+
+### Docker ###
+# docker-compose는 올려야 하지만, 로컬 마운트 데이터는 무시
+docker/data/
+docker/mysql/
+docker/redis/
+
+### Test Coverage ###
+/coverage
+/jacoco

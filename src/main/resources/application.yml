@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: vault-backend
+
+  profiles:
+    active: local # 개발 중엔 local 프로필 사용
+
+  # 1. Database 설정 (Docker Compose 기준)
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/vault_local?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: root
+    hikari:
+      auto-commit: false # 트랜잭션 관리 명시적으로 하기 위해 false (선택사항)
+
+  # 2. JPA & Hibernate 설정 (디버깅 최적화)
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false # OSIV 종료 (성능 최적화)
+    show-sql: true      # 콘솔에 쿼리 출력
+    hibernate:
+      ddl-auto: update  # 초기 개발 단계라 update (운영에선 validate/none)
+    properties:
+      hibernate:
+        format_sql: true        # 쿼리 줄바꿈
+        highlight_sql: true     # 쿼리 색상 강조
+        use_sql_comments: true  # 쿼리 주석 표시
+
+  # 3. Redis 설정 (인증 토큰 저장소 및 캐시)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
+          max-wait: -1ms
+
+  # 4. JSON 출력 설정 (콘솔 로그 컬러)
+  output:
+    ansi:
+      enabled: always
+
+# 5. Swagger (API 문서) 설정
+springdoc:
+  default-produces-media-type: application/json
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    display-request-duration: true # 요청 소요 시간 표시
+
+# 6. 로깅 레벨 설정
+logging:
+  level:
+    root: INFO
+    org.hibernate.orm.jdbc.bind: TRACE       # SQL 파라미터(? 값) 확인용
+    org.hibernate.orm.jdbc.extract: TRACE
+    org.springframework.transaction.interceptor: TRACE # 트랜잭션 시작/종료 로그
+    com.seungmin.vault: DEBUG                # 내 프로젝트 로그 레벨 (패키지명 수정함!)
+
+# 7. JWT 설정 (Global -> Auth 패키지에서 사용)
+jwt:
+  # 보안상 임시 키값입니다. (실무에선 환경변수로 빼야 함)
+  # Base64로 인코딩된 넉넉한 길이의 문자열 권장
+  secret: "v3aultBackendProjectSecretKeyForJwtTokenGeneration2024!@#"
+  access-token-expiration: 3600000     # 1시간 (ms)
+  refresh-token-expiration: 1209600000 # 14일 (ms)

@@ -1,0 +1,46 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  # 1. H2 Database 설정 (가장 중요)
+  datasource:
+    # DB_CLOSE_DELAY=-1: 테스트 도중 커넥션이 끊겨도 데이터가 날아가지 않게 유지
+    url: jdbc:h2:mem:vault_test;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # 2. JPA 설정 (테스트 격리)
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 테스트 시작 시 생성 -> 종료 시 삭제 (완벽 격리)
+    show-sql: true          # 테스트 쿼리 확인용
+    properties:
+      hibernate:
+        format_sql: true
+
+  # 3. Redis 설정
+  # 주의: 별도 Embedded Redis 설정이 없다면, 로컬에 켜져있는 Redis(6379)를 같이 씁니다.
+  # 테스트끼리 데이터 충돌 방지를 위해 나중에 @BeforeEach로 flushAll() 하거나 TestContainer 도입 추천.
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # 테스트에선 캐시 동작 확인이 필요 없다면 'none'이나 'simple'로 해도 됨
+  # 하지만 Redis 기능을 테스트해야 한다면 'redis' 유지
+  cache:
+    type: redis
+
+# 4. JWT 설정 (테스트용 고정 키)
+# 테스트 코드에서 토큰 생성할 때 이 키를 사용합니다.
+jwt:
+  secret: "test-secret-key-for-vault-project-must-be-long-enough-123456"
+  access-token-expiration: 1800000
+  refresh-token-expiration: 604800000
+
+# 5. 로깅 레벨 (테스트 땐 좀 조용하게 or 디버깅 필요시 변경)
+logging:
+  level:
+    com.seungmin.vault: DEBUG
