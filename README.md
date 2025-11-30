@@ -2,7 +2,7 @@
 
 > **"검수된 실물 자산을 주식처럼 거래한다."**
 >
-> **동시성 제어(Concurrency Control)**와 **데이터 무결성(Data Integrity)**을 핵심 가치로 둔 고성능 리셀 트레이딩 플랫폼입니다.
+> 동시성 제어(Concurrency Control)와 데이터 무결성(Data Integrity)을 핵심 가치로 둔 고성능 리셀 트레이딩 플랫폼입니다.
 
 <br>
 
