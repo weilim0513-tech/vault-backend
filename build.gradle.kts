@@ -32,7 +32,7 @@ dependencies {
 
     // 2. [Database] JPA & MySQL
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly("com.mysql:mysql-connector-j:9.5.0")
+    runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2") // 테스트/로컬용
 
     // 3. [Redis] 캐싱 & 분산락 (트레이딩 핵심 엔진)
@@ -54,7 +54,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+    // developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     // 쿼리 파라미터 로그 확인 (P6Spy)
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0")
