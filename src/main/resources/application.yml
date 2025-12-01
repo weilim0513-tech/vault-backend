@@ -5,6 +5,11 @@ spring:
   profiles:
     active: local # 개발 중엔 local 프로필 사용
 
+  # 도커 자동 실행 기능 (false)
+  docker:
+    compose:
+      enabled: false
+
   # 1. Database 설정 (Docker Compose 기준)
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -60,11 +65,11 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE       # SQL 파라미터(? 값) 확인용
     org.hibernate.orm.jdbc.extract: TRACE
     org.springframework.transaction.interceptor: TRACE # 트랜잭션 시작/종료 로그
-    com.seungmin.vault: DEBUG                # 내 프로젝트 로그 레벨 (패키지명 수정함!)
+    com.seungmin.vault: DEBUG                # 내 프로젝트 로그 레벨
 
 # 7. JWT 설정 (Global -> Auth 패키지에서 사용)
 jwt:
-  # 보안상 임시 키값입니다. (실무에선 환경변수로 빼야 함)
+  # 보안상 임시 키값 (나중에 환경변수로 빼야 함)
   # Base64로 인코딩된 넉넉한 길이의 문자열 권장
   secret: "v3aultBackendProjectSecretKeyForJwtTokenGeneration2024!@#"
   access-token-expiration: 3600000     # 1시간 (ms)
