@@ -111,7 +111,7 @@ jobs:
             # 아직 DB가 없으므로 더미값 주입 (서버 실행 확인용)
             docker run -d \
               --name vault-server \
-              -p 8080:8080 \
+              --network host \
               -e TZ=Asia/Seoul \
               -e DB_USERNAME=root \
               -e DB_PASSWORD=root \
