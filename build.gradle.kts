@@ -1,6 +1,8 @@
+import org.gradle.kotlin.dsl.testImplementation
+
 plugins {
 	java
-	id("org.springframework.boot") version "3.5.8"
+	id("org.springframework.boot") version "4.0.0"
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -39,7 +41,7 @@ dependencies {
     // Data Redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     // Redisson: 선착순/동시성 제어를 위한 분산락 라이브러리
-    implementation("org.redisson:redisson-spring-boot-starter:3.52.0")
+    implementation("org.redisson:redisson:3.52.0")
 
     // 4. [Security & Auth] 보안 및 토큰
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -65,6 +67,11 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test") // 시큐리티 테스트
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Testcontainers (테스트용 도커 관리 도구)
+    testImplementation("org.testcontainers:testcontainers:2.0.2") // testcontainers
+    testImplementation("org.testcontainers:postgresql:1.21.3") // PostgreSQL 모듈
+    testImplementation("org.testcontainers:junit-jupiter:1.21.3") // JUnit 5 연동
 }
 
 tasks.withType<Test> {
